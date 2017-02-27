@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
-  JSONObject
+  JSONExt, JSONObject
 } from '@phosphor/coreutils';
 
 import * as minimist
@@ -38,21 +38,25 @@ namespace PageConfig {
    */
   export
   function getOption(name: string): string {
-    if (Private.configData) {
+    if (name in Private.configData) {
       return Private.configData[name];
     }
-    let data: { [arg: string]: any } = Object.create(null);
+    let data: JSONObject = Object.create(null);
     if (typeof window === 'undefined') {
-      data = minimist(process.argv.slice(2));
+      data = minimist(process.argv.slice(2)) as JSONObject;
     } else {
       let el = document.getElementById('jupyter-config-data');
       if (el) {
-        data = JSON.parse(el.textContent) as JSONObject;
+        data = JSON.parse(el.textContent || '') as JSONObject;
+        if (!JSONExt.isObject(data)) {
+          return '';
+        }
       }
     }
     for (let key in data) {
-      Private.configData[key] = String(data[key]);
+      Private.configData[key] = String(data[key] || '');
     }
+    return Private.configData[name] || '';
   }
 
   /**

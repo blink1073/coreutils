@@ -113,6 +113,11 @@ namespace AJAX {
     password?: string;
 
     /**
+     * The optional token for ajax requests. Defaults to PageConfig `token`.
+     */
+    token?: string;
+
+    /**
      * The optional XHRRequest constructor.
      */
     requestConstructor?: IRequestConstructor;
@@ -202,6 +207,7 @@ namespace Private {
     settings.user = settings.user || '';
     settings.password = settings.password || '';
     settings.withCredentials = !!settings.withCredentials;
+    settings.token = settings.token || PageConfig.getOption('token');
 
     // Ensure that requests have applied data.
     if (!settings.data) {
@@ -210,9 +216,8 @@ namespace Private {
     }
 
     // Handle authorization.
-    let token = PageConfig.getOption('token');
-    if (token) {
-      settings.requestHeaders['Authorization'] = `token ${token}`;
+    if (settings.token) {
+      settings.requestHeaders['Authorization'] = `token ${settings.token}`;
     } else if (typeof document !== 'undefined' && document.cookie) {
       let xsrfToken = Private.getCookie('_xsrf');
       if (xsrfToken !== void 0) {

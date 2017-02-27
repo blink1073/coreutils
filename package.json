@@ -34,6 +34,6 @@
     "@phosphor/coreutils": "^0.1.1",
     "minimist": "^1.2.0",
     "path-posix": "^1.0.0",
-    "url": "^0.11.0",
+    "url": "^0.11.0"
   }
 }
