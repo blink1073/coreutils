@@ -11,25 +11,23 @@ import * as posix
 export
 namespace Path {
   /**
-   * Join a sequence of path components.
+   * Join all arguments together and normalize the resulting path.
+   * Arguments must be strings. In v0.8, non-string arguments were silently ignored. In v0.10 and up, an exception is thrown.
    *
-   * @param parts - The url components.
-   *
-   * @returns the joined url.
+   * @param paths - The string paths to join.
    */
   export
-  function join(...parts: string[]): string {
-    return posix.join(...parts);
+  function join(...paths: string[]): string {
+    return posix.join(...paths);
   }
 
   /**
-   * Get the last portion of a path, similar to the Unix basename command.
+   * Return the last portion of a path. Similar to the Unix basename command.
+   * Often used to extract the file name from a fully qualified path.
    *
-   * @param path - The file path.
+   * @param path - The path to evaluate.
    *
-   * @param ext - An optional file extension.
-   *
-   * @returns - the basename of the path.
+   * @param ext - An extension to remove from the result.
    */
   export
   function basename(path: string, ext?: string): string {
@@ -40,8 +38,6 @@ namespace Path {
    * Get the directory name of a path, similar to the Unix dirname command.
    *
    * @param path - The file path.
-   *
-   * @returns the directory name of the path.
    */
   export
   function dirname(path: string): string {
@@ -68,11 +64,10 @@ namespace Path {
   }
 
   /**
-   * Normalize the given path, resolving '..' and '.' segments.
+   * Normalize a string path, reducing '..' and '.' parts.
+   * When multiple slashes are found, they're replaced by a single one; when the path contains a trailing slash, it is preserved. On Windows backslashes are used.
    *
-   * @param path - The file path.
-   *
-   * @returns the normalized path.
+   * @param path - The string path to normalize.
    */
   export
   function normalize(path: string): string {
@@ -82,9 +77,14 @@ namespace Path {
   /**
    * Resolve a sequence of paths or path segments into an absolute path.
    *
-   * @param parts - The path parts.
+   * @param parts - The paths to join.
    *
-   * @returns the resolved path.
+   * #### Notes
+   * The right-most parameter is considered {to}.  Other parameters are considered an array of {from}.
+   *
+   * Starting from leftmost {from} paramter, resolves {to} to an absolute path.
+   *
+   * If {to} isn't already absolute, {from} arguments are prepended in right to left order, until an absolute path is found. If after using all {from} paths still no absolute path is found, the current working directory is used as well. The resulting path is normalized, and trailing slashes are removed unless the path gets resolved to the root directory.
    */
   export
   function resolve(...parts: string[]): string {
@@ -92,13 +92,11 @@ namespace Path {
   }
 
   /**
-   * Find the relative path from `from` to `to`.
+   * Solve the relative path from {from} to {to}.
    *
-   * @param from - the source path.
+   * @param from - The source path.
    *
-   * @param to - the target path.
-   *
-   * @returns the relative path.
+   * @param to - The target path.
    *
    * #### Notes
    * If from and to each resolve to the same path (after calling
@@ -112,11 +110,10 @@ namespace Path {
   }
 
   /**
-   * Determine if a path is an absolute path.
+   * Determines whether {path} is an absolute path. An absolute path will
+   * always resolve to the same location, regardless of the working directory.
    *
-   * @param path - the file path.
-   *
-   * @returns whether the path is an absolute path.
+   * @param path - The path to test.
    */
   export
   function isAbsolute(path: string): boolean {
@@ -127,8 +124,6 @@ namespace Path {
    * Normalize a file extension to be of the type `'.foo'`.
    *
    * @param extension - the file extension.
-   *
-   * @returns the normalized file extension.
    *
    * #### Notes
    * Adds a leading dot if not present and converts to lower case.
