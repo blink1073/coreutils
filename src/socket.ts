@@ -2,6 +2,10 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
+  PromiseDelegate
+} from '@phosphor/coreutils';
+
+import {
   ISignal, Signal
 } from '@phosphor/signaling';
 
@@ -25,8 +29,6 @@ class ManagedSocket {
   constructor(options: ManagedSocket.IOptions) {
     this.url = options.url;
     this._token = options.token || PageConfig.getOption('token');
-    this._status = 'starting';
-    this._createSocket();
   }
 
   /**
@@ -56,6 +58,19 @@ class ManagedSocket {
   }
 
   /**
+   * Connect or reconnect to the socket.
+   */
+  connect(): Promise<void> {
+    if (this._ws !== null) {
+      this.close();
+    }
+    this._reconnectAttempt = 0;
+    this._delegate = new PromiseDelegate<void>();
+    this._createSocket();
+    return this._delegate.promise;
+  }
+
+  /**
    * Send a message to the socket.
    *
    * #### Notes
@@ -70,26 +85,28 @@ class ManagedSocket {
   }
 
   /**
-   * Reconnect to the socket.
+   * Close the socket.
    */
-  reconnect(): void {
-    if (this._ws !== null) {
-      // Clear the websocket event handlers and the socket itself.
-      this._ws.onopen = this._dummyCallback;
-      this._ws.onclose = this._dummyCallback;
-      this._ws.onerror = this._dummyCallback;
-      this._ws.onmessage = this._dummyCallback;
-      this._ws.close();
-      this._ws = null;
+  close(): void {
+    if (this._ws === null) {
+      return;
     }
-    this._setStatus('reconnecting');
-    this._createSocket();
+    // Clear the websocket event handlers and the socket itself.
+    this._ws.onopen = this._dummyCallback;
+    this._ws.onclose = this._dummyCallback;
+    this._ws.onerror = this._dummyCallback;
+    this._ws.onmessage = this._dummyCallback;
+    this._ws.close();
+    this._ws = null;
+    this._setStatus('closed');
   }
 
   /**
    * Create the websocket connection and add socket status handlers.
    */
   private _createSocket(): void {
+    this._setStatus('connecting');
+
     let url = this.url;
     // Strip any authentication from the display string.
     let parsed = URL.parse(url);
@@ -117,7 +134,9 @@ class ManagedSocket {
   private _onWSOpen(evt: Event): void {
     this._reconnectAttempt = 0;
     this._setStatus('open');
-    // We shift the message off the queue
+    this._delegate.resolve(void 0);
+
+    // Shift the message off the queue
     // after the message is sent so that if there is an exception,
     // the message is still pending.
     while (this._pendingMessages.length > 0) {
@@ -138,23 +157,19 @@ class ManagedSocket {
    * Handle a websocket close event.
    */
   private _onWSClose(evt: Event) {
-    if (this._status === 'dead') {
+    if (this._status === 'closed') {
       return;
     }
 
-    // Clear the websocket event handlers and the socket itself.
-    this._ws.onclose = this._dummyCallback;
-    this._ws.onerror = this._dummyCallback;
-    this._ws = null;
+    this.close();
 
     if (this._reconnectAttempt < this._reconnectLimit) {
-      this._setStatus('reconnecting');
       let timeout = Math.pow(2, this._reconnectAttempt);
       console.error('Connection lost, reconnecting in ' + timeout + ' seconds.');
       setTimeout(this._createSocket.bind(this), 1e3 * timeout);
       this._reconnectAttempt += 1;
     } else {
-      this._setStatus('dead');
+      this._delegate.reject(new Error('Could not connect to socket'));
     }
   }
 
@@ -170,8 +185,9 @@ class ManagedSocket {
   }
 
   private _token: string;
-  private _ws: WebSocket | null;
-  private _status: ManagedSocket.Status;
+  private _delegate = new PromiseDelegate<void>();
+  private _ws: WebSocket | null = null;
+  private _status: ManagedSocket.Status = 'closed';
   private _pendingMessages: string[] = [];
   private _reconnectLimit = 7;
   private _reconnectAttempt = 0;
@@ -211,7 +227,7 @@ namespace ManagedSocket {
    * A socket status type.
    */
   export
-  type Status = 'open' | 'starting' | 'reconnecting' | 'dead';
+  type Status = 'open' | 'connecting' | 'closed';
 
   /**
    * The interface for a WebSocket factory.
