@@ -21,19 +21,20 @@ use(chaiAsPromised);
 
 describe('@jupyterlab/coreutils', () => {
 
-  let xhr: SinonFakeXMLHttpRequest;
+  let xhr: AJAX.IConstructor;
   let requests: SinonFakeXMLHttpRequest[];
 
   beforeEach(function () {
-    xhr = useFakeXMLHttpRequest();
+    let fake = useFakeXMLHttpRequest();
     requests = [];
-    xhr.onCreate = function (xhr) {
-      requests.push(xhr);
+    fake.onCreate = function (request) {
+      requests.push(request);
     };
+    xhr = fake as any;
   });
 
   afterEach(function () {
-    xhr.restore();
+    (xhr as any).restore();
   });
 
   describe('AJAX', () => {
@@ -41,14 +42,14 @@ describe('@jupyterlab/coreutils', () => {
     describe('#request()', () => {
 
       it('should make an asynchronous xml request', () => {
-        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let promise = AJAX.request('foo', { xhr });
         let request = requests[0];
         request.respond(200, {}, 'foo');
         return expect(promise).to.be.fulfilled;
       });
 
       it('should populate defaults', () => {
-        AJAX.request('foo', { xhr: xhr as any });
+        AJAX.request('foo', { xhr });
         let request = requests[0];
         expect(request.method).to.equal('GET');
         expect(request.password).to.equal('');
@@ -72,7 +73,7 @@ describe('@jupyterlab/coreutils', () => {
           user: 'snuffy',
           password: 'password',
           token: 'secret',
-          xhr: xhr as any
+          xhr
         };
         AJAX.request('foo', settings);
         let request = requests[0];
@@ -88,7 +89,7 @@ describe('@jupyterlab/coreutils', () => {
       });
 
       it('should resolve with a success object', () => {
-        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let promise = AJAX.request('foo', { xhr });
         let request = requests[0];
         request.respond(200, {}, 'foo');
         return promise.then(response => {
@@ -100,7 +101,7 @@ describe('@jupyterlab/coreutils', () => {
       });
 
       it('should reject with an error object', () => {
-        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let promise = AJAX.request('foo', { xhr });
         let request = requests[0];
         request.respond(404, {}, 'foo');
         return promise.then(
@@ -120,7 +121,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('#makeError()', () => {
 
       it('should make an AJAX error from an AJAX success', () => {
-        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let promise = AJAX.request('foo', { xhr });
         let request = requests[0];
         request.respond(200, {}, 'foo');
         return promise.then(success => {
@@ -133,7 +134,7 @@ describe('@jupyterlab/coreutils', () => {
       });
 
       it('should add an error message', () => {
-        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let promise = AJAX.request('foo', { xhr });
         let request = requests[0];
         request.respond(200, {}, 'foo');
         return promise.then(success => {
