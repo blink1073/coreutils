@@ -1,4 +1,6 @@
-
+// Type definitions for mock-socket v6.0.4
+// Project: https://github.com/thoov/mock-socket
+// Definitions by: Steven Silvester <https://github.com/blink1073>
 
 declare module "mock-socket" {
   export class Server {
