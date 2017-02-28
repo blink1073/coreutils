@@ -105,6 +105,14 @@ namespace URL {
   }
 
   /**
+   * Test whether the url is a local url.
+   */
+  export
+  function isLocal(url: string): boolean {
+    return !parse(url).protocol && url.indexOf('//') !== 0;
+  }
+
+  /**
    * The interface for a URL object
    */
   export interface IUrl {
