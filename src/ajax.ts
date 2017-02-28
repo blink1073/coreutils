@@ -52,9 +52,7 @@ namespace AJAX {
    */
   export
   function makeError(success: ISuccess, message?: string): IError {
-    let xhr = success.xhr;
-    let settings = success.settings;
-    let event = success.event;
+    let { xhr, settings, event } = success;
     message = message || `Invalid Status: ${xhr.status}`;
     return { xhr, settings, event, message };
   }
