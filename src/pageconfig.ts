@@ -47,6 +47,7 @@ namespace PageConfig {
       return configData[name] || '';
     }
     configData = Object.create(null);
+    // Use CLI if on node.
     if (typeof process !== 'undefined') {
       let cli = minimist(process.argv.slice(2));
       if ('jupyter-config-data' in cli) {
@@ -58,6 +59,7 @@ namespace PageConfig {
           console.error(e);
         }
       }
+    // Use script tag if in the browser.
     } else {
       let el = document.getElementById('jupyter-config-data');
       if (el) {
