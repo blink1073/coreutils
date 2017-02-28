@@ -95,7 +95,85 @@ describe('@jupyterlab/coreutils', () => {
           expect(socket.status).to.equal('connecting');
         });
       });
+
     });
+
+    describe('#connect()', () => {
+
+      it('should connect to the socket', () => {
+        let socket = new ManagedSocket({ url });
+        return socket.connect().then(() => {
+          expect(socket.status).to.equal('open');
+        });
+      });
+
+      it('should reconnect to an open socket', () => {
+        let socket = new ManagedSocket({ url });
+        return socket.connect().then(() => {
+          expect(socket.status).to.equal('open');
+          let promise = socket.connect();
+          expect(socket.status).to.equal('connecting');
+          return promise;
+        }).then(() => {
+          expect(socket.status).to.equal('open');
+        });
+      });
+
+      it('should reconnect to a closed socket', () => {
+        let socket = new ManagedSocket({ url });
+        return socket.connect().then(() => {
+          expect(socket.status).to.equal('open');
+          socket.close();
+          expect(socket.status).to.equal('closed');
+          let promise = socket.connect();
+          expect(socket.status).to.equal('connecting');
+          return promise;
+        }).then(() => {
+          expect(socket.status).to.equal('open');
+        });
+      });
+
+    });
+
+    describe('#send()', () => {
+
+      it('should send a message to the server', (done) => {
+        let socket = new ManagedSocket({ url });
+        socket.connect().then(() => {
+          server.on('message', msg => {
+            expect(msg).to.equal('foo');
+            done();
+          });
+          socket.send('foo');
+        }).catch(done);
+      });
+
+      it('should queue a message when the socket is not connected', (done) => {
+        let socket = new ManagedSocket({ url });
+        socket.send('foo');
+        server.on('message', msg => {
+          expect(msg).to.equal('foo');
+          done();
+        });
+        socket.connect().catch(done);
+      });
+
+    });
+
+    describe('#close()', () => {
+
+      it('should close the socket', () => {
+        let socket = new ManagedSocket({ url });
+        return socket.connect().then(() => {
+          socket.close();
+          expect(socket.status).to.equal('closed');
+          socket.close();
+          expect(socket.status).to.equal('closed');
+        });
+      });
+
+    });
+
   });
 
 });
