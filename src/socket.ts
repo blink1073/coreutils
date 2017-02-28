@@ -61,9 +61,6 @@ class ManagedSocket {
    * Connect or reconnect to the socket.
    */
   connect(): Promise<void> {
-    if (this._ws !== null) {
-      this.close();
-    }
     this._reconnectAttempt = 0;
     this._delegate = new PromiseDelegate<void>();
     this._createSocket();
@@ -88,16 +85,7 @@ class ManagedSocket {
    * Close the socket.
    */
   close(): void {
-    if (this._ws === null) {
-      return;
-    }
-    // Clear the websocket event handlers and the socket itself.
-    this._ws.onopen = this._dummyCallback;
-    this._ws.onclose = this._dummyCallback;
-    this._ws.onerror = this._dummyCallback;
-    this._ws.onmessage = this._dummyCallback;
-    this._ws.close();
-    this._ws = null;
+    this._close();
     this._setStatus('closed');
   }
 
@@ -105,8 +93,6 @@ class ManagedSocket {
    * Create the websocket connection and add socket status handlers.
    */
   private _createSocket(): void {
-    this._setStatus('connecting');
-
     let url = this.url;
     // Strip any authentication from the display string.
     let parsed = URL.parse(url);
@@ -117,9 +103,16 @@ class ManagedSocket {
     if (this._token !== '') {
       url = url + `&token=${encodeURIComponent(this._token)}`;
     }
+    // Clear any existing socket.
+    this._close();
+
+    // Update the status.
+    this._setStatus('connecting');
+
+    // Connect to the socket and set it up.
     this._ws = new WebSocket(url);
 
-    // Ensure incoming binary messages are not Blobs
+    // Ensure incoming binary messages are not Blobs.
     this._ws.binaryType = 'arraybuffer';
 
     this._ws.onmessage = (evt: MessageEvent) => { this._onWSMessage(evt); };
@@ -161,16 +154,31 @@ class ManagedSocket {
       return;
     }
 
-    this.close();
-
     if (this._reconnectAttempt < this._reconnectLimit) {
       let timeout = Math.pow(2, this._reconnectAttempt);
       console.error('Connection lost, reconnecting in ' + timeout + ' seconds.');
       setTimeout(this._createSocket.bind(this), 1e3 * timeout);
       this._reconnectAttempt += 1;
     } else {
+      this.close();
       this._delegate.reject(new Error('Could not connect to socket'));
     }
+  }
+
+  /**
+   * Close the underlying socket.
+   */
+  private _close(): void {
+    if (this._ws === null) {
+      return;
+    }
+    // Clear the websocket event handlers and the socket itself.
+    this._ws.onopen = this._dummyCallback;
+    this._ws.onclose = this._dummyCallback;
+    this._ws.onerror = this._dummyCallback;
+    this._ws.onmessage = this._dummyCallback;
+    this._ws.close();
+    this._ws = null;
   }
 
   /**
