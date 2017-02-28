@@ -26,14 +26,14 @@ namespace AJAX {
    */
   export
   function request(url: string, settings: ISettings={}): Promise<ISuccess> {
-    if (!settings.cache) {
+    if (settings.cache !== false) {
       // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest#Bypassing_the_cache.
       url += ((/\?/).test(url) ? '&' : '?') + (new Date()).getTime();
     }
     settings = Private.handleSettings(settings);
     let xhr: XMLHttpRequest;
-    if (settings.requestConstructor) {
-      xhr = new settings.requestConstructor();
+    if (settings.xhr) {
+      xhr = new settings.xhr();
     } else {
       xhr = new XMLHttpRequest();
     }
@@ -124,9 +124,9 @@ namespace AJAX {
     token?: string;
 
     /**
-     * The optional XHRRequest constructor.
+     * The optional XMLHttpRequest constructor.
      */
-    requestConstructor?: IRequestConstructor;
+    xhr?: IConstructor;
   }
 
   /**
@@ -185,7 +185,7 @@ namespace AJAX {
    * The interface for an XMLHttpRequest constructor.
    */
   export
-  interface IRequestConstructor {
+  interface IConstructor {
     new(): XMLHttpRequest;
     (): XMLHttpRequest;
   }
