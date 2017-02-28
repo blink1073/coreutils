@@ -56,8 +56,10 @@ class ManagedSocket {
   }
 
   /**
-   * Send a message to the socket.  It will be queued until the
-   * socket is connected.
+   * Send a message to the socket.
+   *
+   * #### Notes
+   * If the socket is not open the message will be queued.
    */
   send(msg: string): void {
     if (this._status !== 'open') {
@@ -92,9 +94,9 @@ class ManagedSocket {
     // Strip any authentication from the display string.
     let parsed = URL.parse(url);
     let display = url.replace(parsed.auth, '');
-    console.log('Starting websocket', display);
+    console.log(`Starting websocket: ${display}`);
 
-    // if token authentication is in use
+    // Add token if needed.
     if (this._token !== '') {
       url = url + `&token=${encodeURIComponent(this._token)}`;
     }
@@ -211,7 +213,7 @@ namespace ManagedSocket {
   type Status = 'open' | 'starting' | 'reconnecting' | 'dead';
 
   /**
-   * The interface for an XMLHttpRequest factory.
+   * The interface for a WebSocket factory.
    */
   export
   interface IFactory {
