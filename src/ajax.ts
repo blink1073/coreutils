@@ -32,8 +32,8 @@ namespace AJAX {
     }
     settings = Private.handleSettings(settings);
     let xhr: XMLHttpRequest;
-    if (settings.xhr) {
-      xhr = new settings.xhr();
+    if (settings.factory) {
+      xhr = new settings.factory();
     } else {
       xhr = new XMLHttpRequest();
     }
@@ -124,7 +124,7 @@ namespace AJAX {
     /**
      * The optional XMLHttpRequest constructor.
      */
-    xhr?: IConstructor;
+    factory?: IFactory;
   }
 
   /**
@@ -180,10 +180,10 @@ namespace AJAX {
   }
 
   /**
-   * The interface for an XMLHttpRequest constructor.
+   * The interface for an XMLHttpRequest factory.
    */
   export
-  interface IConstructor {
+  interface IFactory {
     new(): XMLHttpRequest;
     (): XMLHttpRequest;
   }
