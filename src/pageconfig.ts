@@ -29,7 +29,7 @@ namespace PageConfig {
    *
    * @param name - The name of the configuration option.
    *
-   * @returns The config value or `undefined` if not found.
+   * @returns The config value or an empty string if not found.
    *
    * #### Notes
    * For browser based applications, it is assumed that the page HTML

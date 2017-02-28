@@ -13,7 +13,7 @@
     "test:integration": "cd test && python integration_test.py",
     "test:devtool": "devtool node_modules/mocha/bin/_mocha -qc build/*.spec.js",
     "test:debug": "mocha build/*/*.spec.js --debug-brk",
-    "test": "mocha build/*.spec.js"
+    "test": "mocha build/*.spec.js --baseUrl=https://foo:8888 --wsUrl=ws://bar:8888 --foo=bar"
   },
   "repository": {
     "type": "git",
@@ -50,6 +50,7 @@
   },
   "dependencies": {
     "@phosphor/coreutils": "^0.1.2",
+    "@phosphor/disposable": "^0.1.0",
     "@phosphor/signaling": "^0.1.1",
     "minimist": "^1.2.0",
     "path-posix": "^1.0.0",
