@@ -5,9 +5,12 @@ import {
   expect, use
 } from 'chai';
 
-import * as chaiAsPromised from 'chai-as-promised';
+import {
+  SinonFakeXMLHttpRequest, useFakeXMLHttpRequest
+} from 'sinon';
 
-import * as sinon from 'sinon';
+import * as chaiAsPromised
+  from 'chai-as-promised';
 
 import {
   AJAX
@@ -18,11 +21,11 @@ use(chaiAsPromised);
 
 describe('@jupyterlab/coreutils', () => {
 
-  let xhr: sinon.SinonFakeXMLHttpRequest;
-  let requests: sinon.SinonFakeXMLHttpRequest[];
+  let xhr: SinonFakeXMLHttpRequest;
+  let requests: SinonFakeXMLHttpRequest[];
 
   beforeEach(function () {
-    xhr = sinon.useFakeXMLHttpRequest();
+    xhr = useFakeXMLHttpRequest();
     requests = [];
     xhr.onCreate = function (xhr) {
       requests.push(xhr);

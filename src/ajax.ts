@@ -225,7 +225,7 @@ namespace Private {
     if (settings.token) {
       settings.requestHeaders['Authorization'] = `token ${settings.token}`;
     } else if (typeof document !== 'undefined' && document.cookie) {
-      let xsrfToken = Private.getCookie('_xsrf');
+      let xsrfToken = getCookie('_xsrf');
       if (xsrfToken !== void 0) {
         settings.requestHeaders['X-XSRFToken'] = xsrfToken;
       }
@@ -300,7 +300,6 @@ namespace Private {
   /**
    * Get a cookie from the document.
    */
-  export
   function getCookie(name: string) {
     // from tornado docs: http://www.tornadoweb.org/en/stable/guide/security.html
     let r = document.cookie.match('\\b' + name + '=([^;]*)\\b');
