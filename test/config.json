@@ -1,0 +1,5 @@
+{
+    "baseUrl": "https://foo:8888/",
+    "wsUrl": "ws://bar:8888/",
+    "foo": "bar"
+}

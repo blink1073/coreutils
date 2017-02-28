@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
-  JSONExt, JSONObject
+  JSONExt
 } from '@phosphor/coreutils';
 
 import * as minimist
@@ -14,9 +14,10 @@ import {
 
 
 /**
- * Declare a stub for the node process variable.
+ * Declare a stub for the node process and require variables.
  */
 declare var process: any;
+declare var require: any;
 
 
 /**
@@ -32,31 +33,45 @@ namespace PageConfig {
    * @returns The config value or an empty string if not found.
    *
    * #### Notes
+   * All values are treated as strings.
    * For browser based applications, it is assumed that the page HTML
    * includes a script tag with the id `jupyter-config-data` containing the
    * configuration as valid JSON.
+   * For node applications, it is assumed that the process was launched
+   * with a `--jupyter-config-data` option pointing to a JSON settings
+   * file.
    */
   export
   function getOption(name: string): string {
-    if (name in Private.configData) {
-      return Private.configData[name];
+    if (configData) {
+      return configData[name] || '';
     }
-    let data: JSONObject = Object.create(null);
-    if (typeof window === 'undefined') {
-      data = minimist(process.argv.slice(2)) as JSONObject;
+    configData = Object.create(null);
+    if (typeof process !== 'undefined') {
+      let cli = minimist(process.argv.slice(2));
+      if ('jupyter-config-data' in cli) {
+        let path: any = require('path');
+        let fullPath = path.resolve(cli['jupyter-config-data']);
+        try {
+          configData = require(fullPath) as { [key: string]: string };
+        } catch (e) {
+          console.error(e);
+        }
+      }
     } else {
       let el = document.getElementById('jupyter-config-data');
       if (el) {
-        data = JSON.parse(el.textContent || '') as JSONObject;
-        if (!JSONExt.isObject(data)) {
-          return '';
-        }
+        configData = JSON.parse(el.textContent || '') as { [key: string]: string };
       }
     }
-    for (let key in data) {
-      Private.configData[key] = String(data[key] || '');
+    if (!JSONExt.isObject(configData)) {
+      configData = Object.create(null);
+    } else {
+      for (let key in configData) {
+        configData[key] = String(configData[key]);
+      }
     }
-    return Private.configData[name] || '';
+    return configData[name] || '';
   }
 
   /**
@@ -70,7 +85,7 @@ namespace PageConfig {
                  'http://localhost:8888/' : location.origin + '/');
     }
     let parsed = URL.parse(baseUrl);
-    return URL.join(parsed.protocol, parsed.host);
+    return `${parsed.protocol}//${parsed.host}`;
   }
 
   /**
@@ -91,18 +106,11 @@ namespace PageConfig {
       wsUrl = 'ws' + baseUrl.slice(4);
     }
     let parsed = URL.parse(wsUrl);
-    return URL.join(parsed.protocol, parsed.host);
+    return `${parsed.protocol}//${parsed.host}`;
   }
-}
 
-
-/**
- * The namespace for module private data.
- */
-namespace Private {
   /**
-   * Page config data for the Jupyter application.
+   * Private page config data for the Jupyter application.
    */
-  export
-  const configData: { [key: string]: string } = Object.create(null);
+  let configData: { [key: string]: string } = null;
 }

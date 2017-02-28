@@ -28,9 +28,19 @@ describe('@jupyterlab/coreutils', () => {
 
     describe('#getBaseUrl()', () => {
 
+      it('should get the base url of the page', () => {
+        // The value was passed as a command line arg.
+        expect(PageConfig.getBaseUrl()).to.equal('https://foo:8888');
+      });
+
     });
 
     describe('#getWsUrl()', () => {
+
+      it('should get the base ws url of the page', () => {
+        // The value was passed as a command line arg.
+        expect(PageConfig.getWsUrl()).to.equal('ws://bar:8888');
+      });
 
     });
 

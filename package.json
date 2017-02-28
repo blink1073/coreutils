@@ -11,9 +11,9 @@
     "clean": "rimraf lib && rimraf build",
     "test:coverage": "istanbul cover --dir coverage _mocha -- build/*.spec.js",
     "test:integration": "cd test && python integration_test.py",
-    "test:devtool": "devtool node_modules/mocha/bin/_mocha -qc build/*.spec.js",
-    "test:debug": "mocha build/*/*.spec.js --debug-brk",
-    "test": "mocha build/*.spec.js --baseUrl=https://foo:8888 --wsUrl=ws://bar:8888 --foo=bar"
+    "test:devtool": "devtool node_modules/mocha/bin/_mocha -qc build/*.spec.js --jupyter-config-data=./test/config.json",
+    "test:debug": "mocha build/*/*.spec.js --jupyter-config-data=./test/config.json --debug-brk",
+    "test": "mocha build/*.spec.js --jupyter-config-data=./test/config.json"
   },
   "repository": {
     "type": "git",
