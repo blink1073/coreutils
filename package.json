@@ -5,7 +5,11 @@
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
-    "build": "rimraf lib && tsc"
+    "build:src": "tsc --project tsconfig.src.json",
+    "build:test": "tsc --project tsconfig.test.json",
+    "build": "npm run build:src && npm run build:test",
+    "clean": "rimraf lib && rimraf build",
+    "test": "mocha --retries 3 build/*.spec.js"
   },
   "repository": {
     "type": "git",
@@ -25,13 +29,21 @@
   },
   "homepage": "https://github.com/jupyterlab/coreutils",
   "devDependencies": {
+    "@types/chai": "^3.4.35",
+    "@types/chai-as-promised": "0.0.29",
     "@types/minimist": "^1.2.0",
+    "@types/mocha": "^2.2.39",
     "@types/moment": "^2.13.0",
-    "rimraf": "^2.6.1",
-    "typescript": "^2.1.6"
+    "@types/sinon": "^1.16.35",
+    "chai": "^3.5.0",
+    "chai-as-promised": "^6.0.0",
+    "mocha": "^3.2.0",
+    "rimraf": "^2.5.2",
+    "sinon": "^1.17.7",
+    "typescript": "^2.2.1"
   },
   "dependencies": {
-    "@phosphor/coreutils": "^0.1.1",
+    "@phosphor/coreutils": "^0.1.2",
     "minimist": "^1.2.0",
     "path-posix": "^1.0.0",
     "url": "^0.11.0"

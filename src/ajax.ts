@@ -2,7 +2,7 @@
 // Distributed under the terms of the Modified BSD License.
 
 import {
-  JSONValue
+  JSONValue, PromiseDelegate
 } from '@phosphor/coreutils';
 
 import {
@@ -25,14 +25,20 @@ namespace AJAX {
    * @returns a Promise that resolves with the success data.
    */
   export
-  function request(url: string, settings: ISettings): Promise<ISuccess> {
+  function request(url: string, settings: ISettings={}): Promise<ISuccess> {
     if (!settings.cache) {
       // https://developer.mozilla.org/en-US/docs/Web/API/XMLHttpRequest/Using_XMLHttpRequest#Bypassing_the_cache.
       url += ((/\?/).test(url) ? '&' : '?') + (new Date()).getTime();
     }
     settings = Private.handleSettings(settings);
-    let xhr = Private.createRequest(settings);
+    let xhr: XMLHttpRequest;
+    if (settings.requestConstructor) {
+      xhr = new settings.requestConstructor();
+    } else {
+      xhr = new XMLHttpRequest();
+    }
     xhr.open(settings.method, url, true, settings.user, settings.password);
+    Private.populateRequest(xhr, settings);
     return Private.handleRequest(xhr, settings);
   }
 
@@ -231,14 +237,7 @@ namespace Private {
    * Make an xhr request using settings.
    */
   export
-  function createRequest(settings: AJAX.ISettings): XMLHttpRequest {
-    let xhr: XMLHttpRequest;
-    if (settings.requestConstructor) {
-      xhr = new settings.requestConstructor();
-    } else {
-      xhr = new XMLHttpRequest();
-    }
-
+  function populateRequest(xhr: XMLHttpRequest, settings: AJAX.ISettings): void {
     if (settings.contentType !== void 0) {
       xhr.setRequestHeader('Content-Type', settings.contentType);
     }
@@ -254,7 +253,6 @@ namespace Private {
     for (let prop in headers) {
       xhr.setRequestHeader(prop, headers[prop]);
     }
-    return xhr;
   }
 
   /**
@@ -262,39 +260,41 @@ namespace Private {
    */
   export
   function handleRequest(xhr: XMLHttpRequest, settings: AJAX.ISettings): Promise<AJAX.ISuccess> {
-    return new Promise((resolve, reject) => {
-      xhr.onload = (event: ProgressEvent) => {
-        if (xhr.status >= 300) {
-          let message = xhr.statusText || xhr.responseText;
-          reject({ event, xhr, settings, message });
-        }
-        let data = xhr.responseText;
-        try {
-          data = JSON.parse(data);
-        } catch (err) {
-          // no-op
-        }
-        resolve({ xhr, settings, data, event });
-      };
+    let delegate = new PromiseDelegate();
 
-      xhr.onabort = (event: Event) => {
-        reject({ xhr, event, settings });
-      };
-
-      xhr.onerror = (event: ErrorEvent) => {
-        reject({ xhr, event, settings });
-      };
-
-      xhr.ontimeout = (ev: ProgressEvent) => {
-        reject({ xhr, event, settings });
-      };
-
-      if (settings.data) {
-        xhr.send(settings.data);
-      } else {
-        xhr.send();
+    xhr.onload = (event: ProgressEvent) => {
+      if (xhr.status >= 300) {
+        let message = xhr.statusText || xhr.responseText;
+        delegate.reject({ event, xhr, settings, message });
       }
-    });
+      let data = xhr.responseText;
+      try {
+        data = JSON.parse(data);
+      } catch (err) {
+        // no-op
+      }
+      delegate.resolve({ xhr, settings, data, event });
+    };
+
+    xhr.onabort = (event: Event) => {
+      delegate.reject({ xhr, event, settings });
+    };
+
+    xhr.onerror = (event: ErrorEvent) => {
+      delegate.reject({ xhr, event, settings });
+    };
+
+    xhr.ontimeout = (ev: ProgressEvent) => {
+      delegate.reject({ xhr, event, settings });
+    };
+
+    if (settings.data) {
+      xhr.send(settings.data);
+    } else {
+      xhr.send();
+    }
+
+    return delegate.promise;
   }
 
   /**
