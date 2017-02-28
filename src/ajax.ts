@@ -43,7 +43,7 @@ namespace AJAX {
   }
 
   /**
-   * Create an ajax error from an ajax success.
+   * Create an AJAX error from an AJAX success.
    *
    * @param success - The original success object.
    *
@@ -176,9 +176,9 @@ namespace AJAX {
     readonly settings: ISettings;
 
     /**
-     * The error message.
+     * The error message associated with the error.
      */
-    readonly message?: string;
+    readonly message: string;
   }
 
   /**
@@ -264,7 +264,7 @@ namespace Private {
 
     xhr.onload = (event: ProgressEvent) => {
       if (xhr.status >= 300) {
-        let message = xhr.statusText || xhr.responseText;
+        let message = `Invalid Status: ${xhr.status}`;
         delegate.reject({ event, xhr, settings, message });
       }
       let data = xhr.responseText;
@@ -277,15 +277,15 @@ namespace Private {
     };
 
     xhr.onabort = (event: Event) => {
-      delegate.reject({ xhr, event, settings });
+      delegate.reject({ xhr, event, settings, message: 'Aborted' });
     };
 
     xhr.onerror = (event: ErrorEvent) => {
-      delegate.reject({ xhr, event, settings });
+      delegate.reject({ xhr, event, settings, message: event.message });
     };
 
     xhr.ontimeout = (ev: ProgressEvent) => {
-      delegate.reject({ xhr, event, settings });
+      delegate.reject({ xhr, event, settings, message: 'Timed Out' });
     };
 
     if (settings.data) {

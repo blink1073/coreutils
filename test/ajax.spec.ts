@@ -87,10 +87,63 @@ describe('@jupyterlab/coreutils', () => {
         expect(request.withCredentials).to.equal(true);
       });
 
+      it('should resolve with a success object', () => {
+        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let request = requests[0];
+        request.respond(200, {}, 'foo');
+        return promise.then(response => {
+          expect(response.xhr).to.equal(request);
+          expect(response.event.type).to.equal('load');
+          expect(response.data).to.equal('foo');
+          expect(response.settings['method']).to.equal('GET');
+        });
+      });
+
+      it('should reject with an error object', () => {
+        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let request = requests[0];
+        request.respond(404, {}, 'foo');
+        return promise.then(
+          () => { throw Error('Expected failure'); },
+          error => {
+            expect(error.xhr).to.equal(request);
+            expect(error.event.type).to.equal('load');
+            expect(error.settings['method']).to.equal('GET');
+            expect(error.xhr.statusText).to.equal('Not Found');
+            expect(error.message).to.equal('Invalid Status: 404');
+          }
+        );
+      });
+
     });
 
     describe('#makeError()', () => {
 
+      it('should make an AJAX error from an AJAX success', () => {
+        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let request = requests[0];
+        request.respond(200, {}, 'foo');
+        return promise.then(success => {
+          let error = AJAX.makeError(success);
+          expect(error.xhr).to.equal(request);
+          expect(error.settings).to.equal(success.settings);
+          expect(error.event).to.equal(success.event);
+          expect(error.message).to.equal('Invalid Status: 200');
+        });
+      });
+
+      it('should add an error message', () => {
+        let promise = AJAX.request('foo', { xhr: xhr as any });
+        let request = requests[0];
+        request.respond(200, {}, 'foo');
+        return promise.then(success => {
+          let error = AJAX.makeError(success, 'custom failure');
+          expect(error.xhr).to.equal(request);
+          expect(error.settings).to.equal(success.settings);
+          expect(error.event).to.equal(success.event);
+          expect(error.message).to.equal('custom failure');
+        });
+      });
     });
 
   });
