@@ -37,7 +37,7 @@ namespace AJAX {
     } else {
       xhr = new XMLHttpRequest();
     }
-    xhr.open(settings.method, url, true, settings.user, settings.password);
+    xhr.open(settings.method!, url, true, settings.user!, settings.password!);
     Private.populateRequest(xhr, settings);
     return Private.handleRequest(xhr, settings);
   }
@@ -247,7 +247,7 @@ namespace Private {
     }
 
     // Write the request headers.
-    let headers = settings.requestHeaders;
+    let headers = settings.requestHeaders!;
     for (let prop in headers) {
       xhr.setRequestHeader(prop, headers[prop]);
     }

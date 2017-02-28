@@ -75,10 +75,10 @@ class ManagedSocket {
   reconnect(): void {
     if (this._ws !== null) {
       // Clear the websocket event handlers and the socket itself.
-      this._ws.onopen = null;
-      this._ws.onclose = null;
-      this._ws.onerror = null;
-      this._ws.onmessage = null;
+      this._ws.onopen = this._dummyCallback;
+      this._ws.onclose = this._dummyCallback;
+      this._ws.onerror = this._dummyCallback;
+      this._ws.onmessage = this._dummyCallback;
       this._ws.close();
       this._ws = null;
     }
@@ -93,7 +93,7 @@ class ManagedSocket {
     let url = this.url;
     // Strip any authentication from the display string.
     let parsed = URL.parse(url);
-    let display = url.replace(parsed.auth, '');
+    let display = url.replace(parsed.auth || '', '');
     console.log(`Starting websocket: ${display}`);
 
     // Add token if needed.
@@ -143,8 +143,8 @@ class ManagedSocket {
     }
 
     // Clear the websocket event handlers and the socket itself.
-    this._ws.onclose = null;
-    this._ws.onerror = null;
+    this._ws.onclose = this._dummyCallback;
+    this._ws.onerror = this._dummyCallback;
     this._ws = null;
 
     if (this._reconnectAttempt < this._reconnectLimit) {
@@ -170,13 +170,14 @@ class ManagedSocket {
   }
 
   private _token: string;
-  private _ws: WebSocket;
+  private _ws: WebSocket | null;
   private _status: ManagedSocket.Status;
   private _pendingMessages: string[] = [];
   private _reconnectLimit = 7;
   private _reconnectAttempt = 0;
   private _statusChanged = new Signal<this, ManagedSocket.Status>(this);
   private _messageReceived = new Signal<this, MessageEvent>(this);
+  private _dummyCallback = () => { /* no-op */ };
 }
 
 

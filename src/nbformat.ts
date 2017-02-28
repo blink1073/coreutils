@@ -40,12 +40,12 @@ namespace nbformat {
    * The language info metatda
    */
   export
-  interface ILanguageInfoMetadata extends JSONObject {
+  interface ILanguageInfoMetadata extends  JSONObject {
     name: string;
-    codemirror_mode?: string | JSONObject;
-    file_extension?: string;
-    mimetype?: string;
-    pygments_lexer?: string;
+    codemirror_mode: string | JSONObject;
+    file_extension: string;
+    mimetype: string;
+    pygments_lexer: string;
   }
 
   /**
@@ -53,9 +53,9 @@ namespace nbformat {
    */
   export
   interface INotebookMetadata extends JSONObject {
-    kernelspec?: IKernelspecMetadata;
-    language_info?: ILanguageInfoMetadata;
-    orig_nbformat?: number;
+    kernelspec: IKernelspecMetadata;
+    language_info: ILanguageInfoMetadata;
+    orig_nbformat: number;
   }
 
   /**
@@ -176,12 +176,12 @@ namespace nbformat {
     /**
      * The cell's name. If present, must be a non-empty string.
      */
-    name?: string;
+    name: string;
 
     /**
      * The cell's tags. Tags must be unique, and must not contain commas.
      */
-    tags?: string[];
+    tags: string[];
   }
 
   /**
@@ -213,7 +213,7 @@ namespace nbformat {
     /**
      * Raw cell metadata format for nbconvert.
      */
-    format?: string;
+    format: string;
   }
 
   /**
@@ -234,7 +234,7 @@ namespace nbformat {
     /**
      * Cell attachments.
      */
-    attachments?: IAttachments;
+    attachments: IAttachments;
   }
 
   /**
@@ -250,7 +250,7 @@ namespace nbformat {
     /**
      * Cell attachments.
      */
-    attachments?: IAttachments;
+    attachments: IAttachments;
   }
 
   /**
@@ -261,12 +261,12 @@ namespace nbformat {
     /**
      * Whether the cell is collapsed/expanded.
      */
-    collapsed?: boolean;
+    collapsed: boolean;
 
     /**
      * Whether the cell's output is scrolled, unscrolled, or autoscrolled.
      */
-    scrolled?: boolean | 'auto';
+    scrolled: boolean | 'auto';
   }
 
   /**
