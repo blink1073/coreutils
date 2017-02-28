@@ -6,6 +6,10 @@ import {
 } from '@phosphor/coreutils';
 
 import {
+  IDisposable
+} from '@phosphor/disposable';
+
+import {
   ISignal, Signal
 } from '@phosphor/signaling';
 
@@ -22,7 +26,7 @@ import {
  * A class that manages a web socket connection.
  */
 export
-class ManagedSocket {
+class ManagedSocket implements IDisposable {
   /**
    * Create a new managed socket.
    */
@@ -58,6 +62,26 @@ class ManagedSocket {
   }
 
   /**
+   * Test whether the manager is disposed.
+   */
+  get isDisposed(): boolean {
+    return this._isDisposed;
+  }
+
+  /**
+   * Dispose of the resources used by the manager.
+   */
+  dispose(): void {
+    if (this._isDisposed) {
+      return;
+    }
+    this._isDisposed = true;
+    this._close();
+    clearTimeout(this._timer);
+    Signal.clearData(this);
+  }
+
+  /**
    * Connect or reconnect to the socket.
    */
   connect(): Promise<void> {
@@ -86,6 +110,7 @@ class ManagedSocket {
    */
   close(): void {
     this._close();
+    clearTimeout(this._timer);
     this._setStatus('closed');
   }
 
@@ -157,7 +182,8 @@ class ManagedSocket {
     if (this._reconnectAttempt < this._reconnectLimit) {
       let timeout = Math.pow(2, this._reconnectAttempt);
       console.error('Connection lost, reconnecting in ' + timeout + ' seconds.');
-      setTimeout(this._createSocket.bind(this), 1e3 * timeout);
+      clearTimeout(this._timer);
+      this._timer = setTimeout(this._createSocket.bind(this), 1e3 * timeout);
       this._reconnectAttempt += 1;
     } else {
       this.close();
@@ -192,13 +218,15 @@ class ManagedSocket {
     this._statusChanged.emit(status);
   }
 
-  private _token: string;
+  private _isDisposed = false;
+  private _token = '';
   private _delegate = new PromiseDelegate<void>();
   private _ws: WebSocket | null = null;
   private _status: ManagedSocket.Status = 'closed';
   private _pendingMessages: string[] = [];
   private _reconnectLimit = 7;
   private _reconnectAttempt = 0;
+  private _timer = -1;
   private _statusChanged = new Signal<this, ManagedSocket.Status>(this);
   private _messageReceived = new Signal<this, MessageEvent>(this);
   private _dummyCallback = () => { /* no-op */ };
