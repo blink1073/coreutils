@@ -53,6 +53,7 @@
     "@phosphor/disposable": "^0.1.0",
     "@phosphor/signaling": "^0.1.1",
     "minimist": "^1.2.0",
+    "moment": "^2.17.1",
     "path-posix": "^1.0.0",
     "url": "^0.11.0"
   }
