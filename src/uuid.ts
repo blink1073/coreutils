@@ -8,7 +8,7 @@
  */
 export
 function uuid(length: number=32): string {
-  let s: string[] = [];
+  let s = new Array<string>(length);
   let hexDigits = '0123456789abcdef';
   let nChars = hexDigits.length;
   for (let i = 0; i < length; i++) {
