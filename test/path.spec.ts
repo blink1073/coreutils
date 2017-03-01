@@ -37,7 +37,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.dirname()', () => {
 
       it('should get the directory name of a path', () => {
-        expect(Path.basename(TESTPATH)).to.equal('/foo/test/simple/');
+        expect(Path.dirname(TESTPATH)).to.equal('/foo/test/simple');
       });
 
     });
@@ -75,7 +75,8 @@ describe('@jupyterlab/coreutils', () => {
     describe('.relative()', () => {
 
       it('should solve the relative path', () => {
-
+        let path = Path.relative('/var/lib', '/var/apache');
+        expect(path).to.equal('../apache');
       });
 
     });
@@ -83,7 +84,8 @@ describe('@jupyterlab/coreutils', () => {
     describe('.isAbsolute()', () => {
 
       it('should determine whether a path is absolute', () => {
-
+        expect(Path.isAbsolute('/home/foo')).to.equal(true);
+        expect(Path.isAbsolute('./baz')).to.equal(false);
       });
 
     });
@@ -91,7 +93,8 @@ describe('@jupyterlab/coreutils', () => {
     describe('.normalizeExtension()', () => {
 
       it('should normalize a file extension to be of type `.foo`', () => {
-
+        expect(Path.normalizeExtension('foo')).to.equal('.foo');
+        expect(Path.normalizeExtension('.bar')).to.equal('.bar');
       });
 
     });
