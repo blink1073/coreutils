@@ -114,5 +114,5 @@ namespace PageConfig {
   /**
    * Private page config data for the Jupyter application.
    */
-  let configData: { [key: string]: string } = null;
+  let configData: { [key: string]: string } | null = null;
 }

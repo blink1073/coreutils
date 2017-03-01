@@ -98,7 +98,7 @@ class ManagedSocket implements IDisposable {
    * If the socket is not open the message will be queued.
    */
   send(msg: string): void {
-    if (this._status !== 'open') {
+    if (!this._ws || this._status !== 'open') {
       this._pendingMessages.push(msg);
       return;
     }
@@ -150,6 +150,9 @@ class ManagedSocket implements IDisposable {
    * Handle a websocket open event.
    */
   private _onWSOpen(evt: Event): void {
+    if (!this._ws) {
+      return;
+    }
     this._reconnectAttempt = 0;
     this._setStatus('open');
     this._delegate.resolve(void 0);
