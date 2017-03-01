@@ -13,12 +13,12 @@ namespace Time {
   /**
    * Convert a timestring to a human readable string (e.g. 'two minutes ago').
    *
-   * @param value - The date timestring.
+   * @param value - The date timestring or date object.
    *
    * @returns A formatted date.
    */
   export
-  function formatHuman(value: string): string {
+  function formatHuman(value: string | Date): string {
     let time = moment(value).fromNow();
     time = time === 'a few seconds ago' ? 'seconds ago' : time;
     return time;
@@ -27,14 +27,14 @@ namespace Time {
   /**
    * Convert a timestring to a date format.
    *
-   * @param value - The date timestring.
+   * @param value - The date timestring or date object.
    *
    * @param format - The format string.
    *
    * @returns A formatted date.
    */
   export
-  function format(value: string, format='YYYY-MM-DD HH:mm'): string {
+  function format(value: string | Date, format='YYYY-MM-DD HH:mm'): string {
     return moment(value).format(format);
   }
 }
