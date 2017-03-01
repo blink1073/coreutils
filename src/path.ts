@@ -52,7 +52,7 @@ namespace Path {
    * @returns the extension of the file.
    *
    * #### Notes
-   * The extension is the string from the last occurance of the `.`
+   * The extension is the string from the last occurence of the `.`
    * character to end of string in the last portion of the path, inclusive.
    * If there is no `.` in the last portion of the path, or if the first
    * character of the basename of path [[basename]] is `.`, then an
