@@ -9,7 +9,7 @@ import * as minimist
   from 'minimist';
 
 import {
-  URL
+  URLExt
 } from './url';
 
 
@@ -77,7 +77,7 @@ namespace PageConfig {
   }
 
   /**
-   * Get the base URL for a Jupyter application.
+   * Get the base url for a Jupyter application.
    */
   export
   function getBaseUrl(): string {
@@ -86,12 +86,12 @@ namespace PageConfig {
       baseUrl = (typeof location === 'undefined' ?
                  'http://localhost:8888/' : location.origin + '/');
     }
-    let parsed = URL.parse(baseUrl);
+    let parsed = URLExt.parse(baseUrl);
     return `${parsed.protocol}//${parsed.host}`;
   }
 
   /**
-   * Get the base websocket URL for a Jupyter application.
+   * Get the base websocket URLExt for a Jupyter application.
    */
   export
   function getWsUrl(baseUrl?: string): string {
@@ -100,14 +100,14 @@ namespace PageConfig {
       baseUrl = baseUrl || getBaseUrl();
       if (baseUrl.indexOf('http') !== 0) {
         if (typeof location !== 'undefined') {
-          baseUrl = URL.join(location.origin, baseUrl);
+          baseUrl = URLExt.join(location.origin, baseUrl);
         } else {
-          baseUrl = URL.join('http://localhost:8888/', baseUrl);
+          baseUrl = URLExt.join('http://localhost:8888/', baseUrl);
         }
       }
       wsUrl = 'ws' + baseUrl.slice(4);
     }
-    let parsed = URL.parse(wsUrl);
+    let parsed = URLExt.parse(wsUrl);
     return `${parsed.protocol}//${parsed.host}`;
   }
 

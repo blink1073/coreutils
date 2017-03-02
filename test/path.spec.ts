@@ -6,7 +6,7 @@ import {
 } from 'chai';
 
 import {
-  Path
+  PathExt
 } from '..';
 
 
@@ -15,12 +15,12 @@ const TESTPATH = '/foo/test/simple/test-path.js';
 
 describe('@jupyterlab/coreutils', () => {
 
-  describe('Path', () => {
+  describe('PathExt', () => {
 
     describe('.join()', () => {
 
       it('should join the arguments and normalize the path', () => {
-        let path = Path.join('/foo', '../../../bar');
+        let path = PathExt.join('/foo', '../../../bar');
         expect(path).to.equal('/bar');
       });
 
@@ -29,7 +29,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.basename()', () => {
 
       it('should return the last portion of a path', () => {
-        expect(Path.basename(TESTPATH)).to.equal('test-path.js');
+        expect(PathExt.basename(TESTPATH)).to.equal('test-path.js');
       });
 
     });
@@ -37,7 +37,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.dirname()', () => {
 
       it('should get the directory name of a path', () => {
-        expect(Path.dirname(TESTPATH)).to.equal('/foo/test/simple');
+        expect(PathExt.dirname(TESTPATH)).to.equal('/foo/test/simple');
       });
 
     });
@@ -45,11 +45,11 @@ describe('@jupyterlab/coreutils', () => {
     describe('.extname()', () => {
 
       it('should get the file extension of the path', () => {
-        expect(Path.extname(TESTPATH)).to.equal('.js');
+        expect(PathExt.extname(TESTPATH)).to.equal('.js');
       });
 
       it('should only take the last occurance of a dot', () => {
-        expect(Path.extname('foo.tar.gz')).to.equal('.gz');
+        expect(PathExt.extname('foo.tar.gz')).to.equal('.gz');
       });
 
     });
@@ -57,7 +57,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.normalize()', () => {
 
       it('should normalize a string path', () => {
-        let path = Path.normalize('./fixtures///b/../b/c.js');
+        let path = PathExt.normalize('./fixtures///b/../b/c.js');
         expect(path).to.equal('fixtures/b/c.js');
       });
 
@@ -66,7 +66,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.resolve()', () => {
 
       it('should resolve a sequence of paths to an absolute path', () => {
-        let path = Path.resolve('/var/lib', '../', 'file/');
+        let path = PathExt.resolve('/var/lib', '../', 'file/');
         expect(path).to.equal('/var/file');
       });
 
@@ -75,7 +75,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.relative()', () => {
 
       it('should solve the relative path', () => {
-        let path = Path.relative('/var/lib', '/var/apache');
+        let path = PathExt.relative('/var/lib', '/var/apache');
         expect(path).to.equal('../apache');
       });
 
@@ -84,8 +84,8 @@ describe('@jupyterlab/coreutils', () => {
     describe('.isAbsolute()', () => {
 
       it('should determine whether a path is absolute', () => {
-        expect(Path.isAbsolute('/home/foo')).to.equal(true);
-        expect(Path.isAbsolute('./baz')).to.equal(false);
+        expect(PathExt.isAbsolute('/home/foo')).to.equal(true);
+        expect(PathExt.isAbsolute('./baz')).to.equal(false);
       });
 
     });
@@ -93,8 +93,8 @@ describe('@jupyterlab/coreutils', () => {
     describe('.normalizeExtension()', () => {
 
       it('should normalize a file extension to be of type `.foo`', () => {
-        expect(Path.normalizeExtension('foo')).to.equal('.foo');
-        expect(Path.normalizeExtension('.bar')).to.equal('.bar');
+        expect(PathExt.normalizeExtension('foo')).to.equal('.foo');
+        expect(PathExt.normalizeExtension('.bar')).to.equal('.bar');
       });
 
     });

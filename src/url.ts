@@ -16,7 +16,7 @@ import * as url
  * The namespace for URL-related functions.
  */
 export
-namespace URL {
+namespace URLExt {
   /**
    * Parse a url into a URL object.
    *

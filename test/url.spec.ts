@@ -6,18 +6,18 @@ import {
 } from 'chai';
 
 import {
-  URL
+  URLExt
 } from '..';
 
 
 describe('@jupyterlab/coreutils', () => {
 
-  describe('URL', () => {
+  describe('URLExt', () => {
 
     describe('.parse()', () => {
 
-      it('should parse a url into a URL object', () => {
-        let obj = URL.parse('http://www.example.com');
+      it('should parse a url into a URLExt object', () => {
+        let obj = URLExt.parse('http://www.example.com');
         expect(obj.href).to.equal('http://www.example.com/');
         expect(obj.protocol).to.equal('http:');
         expect(obj.slashes).to.equal(true);
@@ -28,7 +28,7 @@ describe('@jupyterlab/coreutils', () => {
       });
 
       it('should handle query and hash', () => {
-        let obj = URL.parse('http://x.com/path?that\'s#all, folks');
+        let obj = URLExt.parse('http://x.com/path?that\'s#all, folks');
         expect(obj.href).to.equal('http://x.com/path?that%27s#all,%20folks');
         expect(obj.protocol).to.equal('http:');
         expect(obj.slashes).to.equal(true);
@@ -45,11 +45,11 @@ describe('@jupyterlab/coreutils', () => {
 
     describe('.resolve()', () => {
 
-      it('should resolve a target URL relative to a base url', () => {
-        let path = URL.resolve('/foo/bar/baz', '/bar');
+      it('should resolve a target URLExt relative to a base url', () => {
+        let path = URLExt.resolve('/foo/bar/baz', '/bar');
         expect(path).to.equal('/bar');
-        expect(URL.resolve('/foo/bar', '.')).to.equal('/foo/');
-        path = URL.resolve(
+        expect(URLExt.resolve('/foo/bar', '.')).to.equal('/foo/');
+        path = URLExt.resolve(
           'http://example.com/b//c//d;p?q#blarg',
           'https://u:p@h.com/p/a/t/h?s#hash2'
         );
@@ -61,7 +61,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.join()', () => {
 
       it('should join a sequence of url components', () => {
-        expect(URL.join('/foo/', 'bar/')).to.equal('/foo/bar/');
+        expect(URLExt.join('/foo/', 'bar/')).to.equal('/foo/bar/');
       });
 
     });
@@ -69,7 +69,7 @@ describe('@jupyterlab/coreutils', () => {
     describe('.encodeParts()', () => {
 
       it('should encode and join a sequence of url components', () => {
-        expect(URL.encodeParts('>/>')).to.equal('%3E/%3E');
+        expect(URLExt.encodeParts('>/>')).to.equal('%3E/%3E');
       });
 
     });
@@ -81,7 +81,7 @@ describe('@jupyterlab/coreutils', () => {
           name: 'foo',
           id: 'baz'
         };
-        expect(URL.objectToQueryString(obj)).to.equal('?name=foo&id=baz');
+        expect(URLExt.objectToQueryString(obj)).to.equal('?name=foo&id=baz');
       });
 
     });
@@ -89,10 +89,10 @@ describe('@jupyterlab/coreutils', () => {
     describe('.isLocal()', () => {
 
       it('should test whether the url is a local url', () => {
-        expect(URL.isLocal('//foo')).to.equal(false);
-        expect(URL.isLocal('http://foo')).to.equal(false);
-        expect(URL.isLocal('/foo/bar')).to.equal(true);
-        expect(URL.isLocal('foo.txt')).to.equal(true);
+        expect(URLExt.isLocal('//foo')).to.equal(false);
+        expect(URLExt.isLocal('http://foo')).to.equal(false);
+        expect(URLExt.isLocal('/foo/bar')).to.equal(true);
+        expect(URLExt.isLocal('foo.txt')).to.equal(true);
       });
 
     });

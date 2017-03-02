@@ -18,7 +18,7 @@ import {
 } from './pageconfig';
 
 import {
-  URL
+  URLExt
 } from './url';
 
 
@@ -120,7 +120,7 @@ class ManagedSocket implements IDisposable {
   private _createSocket(): void {
     let url = this.url;
     // Strip any authentication from the display string.
-    let parsed = URL.parse(url);
+    let parsed = URLExt.parse(url);
     let display = url.replace(parsed.auth || '', '');
     console.log(`Starting websocket: ${display}`);
 
